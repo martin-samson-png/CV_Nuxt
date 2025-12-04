@@ -1,0 +1,4 @@
+const LinkButton_vue_vue_type_style_index_0_scoped_b70ccc38_lang = 'button[data-v-b70ccc38]{display:inline-block;overflow:hidden;position:relative;transition:all .5s ease-in;z-index:1}button[data-v-b70ccc38]:after,button[data-v-b70ccc38]:before{content:"";height:100%;overflow:hidden;position:absolute;top:0;transform:skew(15deg);transition:all .5s;width:0;z-index:-1}button[data-v-b70ccc38]:before{background:var(--btn-four);left:-10px}button[data-v-b70ccc38]:after{background:var(--btn-third);right:-10px}button[data-v-b70ccc38]:hover:after,button[data-v-b70ccc38]:hover:before{width:58%}button:hover span[data-v-b70ccc38]{color:var(--text);transition:.3s}button span[data-v-b70ccc38]{color:var(--text-second);font-size:18px;transition:all .3s ease-in}';
+
+export { LinkButton_vue_vue_type_style_index_0_scoped_b70ccc38_lang as L };
+//# sourceMappingURL=LinkButton-styles-1.mjs-D1u3XVkw.mjs.map

@@ -1,0 +1,146 @@
+{
+  "currency": "EUR",
+  "tjm": 300,
+  "steps": [
+    {
+      "id": "project",
+      "title": "Type de projet",
+      "type": "single",
+      "options": [
+        {
+          "id": "landing",
+          "label": "Landing",
+          "impact": { "type": "days", "value": 2 }
+        },
+        {
+          "id": "portfolio",
+          "label": "Portfolio",
+          "impact": { "type": "days", "value": 4 }
+        },
+        {
+          "id": "vitrine",
+          "label": "Vitrine",
+          "impact": { "type": "days", "value": 6 }
+        },
+        {
+          "id": "app",
+          "label": "App internet/dash",
+          "impact": { "type": "days", "value": 8 }
+        },
+        {
+          "id": "ecom",
+          "label": "E-commerce lite",
+          "impact": { "type": "days", "value": 8 }
+        }
+      ]
+    },
+    {
+      "id": "pages",
+      "title": "Pages supplémentaires",
+      "type": "number",
+      "min": 0,
+      "max": 10,
+      "perUnitImpact": { "type": "days", "value": 0.5 }
+    },
+    {
+      "id": "content",
+      "title": "Contenu & blog",
+      "type": "multi",
+      "options": [
+        {
+          "id": "blog",
+          "label": "Blog / Actus",
+          "impact": { "type": "days", "value": 1.5 }
+        },
+        {
+          "id": "copy",
+          "label": "Rédaction de contenu",
+          "impact": { "type": "fixed", "value": 400 }
+        }
+      ]
+    },
+    {
+      "id": "auth_pay",
+      "title": "Auth & Paiement",
+      "type": "multi",
+      "options": [
+        {
+          "id": "auth",
+          "label": "Auth (email/OAuth)",
+          "impact": { "type": "days", "value": 2.5 }
+        },
+        {
+          "id": "stripe",
+          "label": "Paiement Stripe",
+          "impact": { "type": "days", "value": 2.5 }
+        }
+      ]
+    },
+    {
+      "id": "ux",
+      "title": "UI, i18n & animations",
+      "type": "multi",
+      "options": [
+        {
+          "id": "design_system",
+          "label": "Design system (10 composants)",
+          "impact": { "type": "days", "value": 3 }
+        },
+        {
+          "id": "i18n",
+          "label": "i18n (2 langues)",
+          "impact": { "type": "days", "value": 1.5 }
+        },
+        {
+          "id": "anim",
+          "label": "Animations micro-interactions",
+          "impact": { "type": "days", "value": 0.75 }
+        }
+      ]
+    },
+    {
+      "id": "quality",
+      "title": "Perf & qualité",
+      "type": "multi",
+      "options": [
+        {
+          "id": "seo",
+          "label": "SEO technique avancé",
+          "impact": { "type": "days", "value": 1 }
+        },
+        {
+          "id": "tests",
+          "label": "Tests (unit + e2e)",
+          "impact": { "type": "days", "value": 1.5 }
+        },
+        {
+          "id": "cicd",
+          "label": "CI/CD",
+          "impact": { "type": "days", "value": 0.5 }
+        }
+      ]
+    },
+    {
+      "id": "ops",
+      "title": "Ops",
+      "type": "multi",
+      "options": [
+        {
+          "id": "analytics",
+          "label": "Analytics + consent",
+          "impact": { "type": "days", "value": 0.5 }
+        },
+        {
+          "id": "hosting",
+          "label": "Setup hébergement",
+          "impact": { "type": "days", "value": 0.5 }
+        },
+        {
+          "id": "support",
+          "label": "Maintenance 1 mois",
+          "impact": { "type": "fixed", "value": 400 }
+        }
+      ]
+    }
+  ]
+}

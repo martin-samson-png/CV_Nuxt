@@ -1,0 +1,140 @@
+{
+  "version": 3,
+  "overrides": {},
+  "routes": [
+    {
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      "src": "/_nuxt/builds/meta/(.*)"
+    },
+    {
+      "headers": {
+        "cache-control": "public, max-age=1, immutable"
+      },
+      "src": "/_nuxt/builds/(.*)"
+    },
+    {
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      "src": "/_nuxt/(.*)"
+    },
+    {
+      "src": "/_nuxt/builds/meta(.*)",
+      "headers": {
+        "cache-control": "public,max-age=31536000,immutable"
+      },
+      "continue": true
+    },
+    {
+      "src": "/_nuxt/builds(.*)",
+      "headers": {
+        "cache-control": "public,max-age=31536000,immutable"
+      },
+      "continue": true
+    },
+    {
+      "src": "/_nuxt(.*)",
+      "headers": {
+        "cache-control": "public,max-age=31536000,immutable"
+      },
+      "continue": true
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/__nuxt_error",
+      "dest": "/__fallback"
+    },
+    {
+      "src": "/start",
+      "dest": "/start"
+    },
+    {
+      "src": "/service",
+      "dest": "/service"
+    },
+    {
+      "src": "/portfolio",
+      "dest": "/portfolio"
+    },
+    {
+      "src": "/langage",
+      "dest": "/langage"
+    },
+    {
+      "src": "/infoPerso",
+      "dest": "/infoPerso"
+    },
+    {
+      "src": "/enCours",
+      "dest": "/enCours"
+    },
+    {
+      "src": "/developers/project",
+      "dest": "/developers/project"
+    },
+    {
+      "src": "/developers/inProgress",
+      "dest": "/developers/inProgress"
+    },
+    {
+      "src": "/customers/service",
+      "dest": "/customers/service"
+    },
+    {
+      "src": "/customers/project",
+      "dest": "/customers/project"
+    },
+    {
+      "src": "/customers/contact",
+      "dest": "/customers/contact"
+    },
+    {
+      "src": "/contact",
+      "dest": "/contact"
+    },
+    {
+      "src": "/companies/project",
+      "dest": "/companies/project"
+    },
+    {
+      "src": "/companies/CV",
+      "dest": "/companies/CV"
+    },
+    {
+      "src": "/chronologie",
+      "dest": "/chronologie"
+    },
+    {
+      "src": "/avis",
+      "dest": "/avis"
+    },
+    {
+      "src": "/api/form",
+      "dest": "/api/form"
+    },
+    {
+      "src": "/__nuxt_error",
+      "dest": "/__nuxt_error"
+    },
+    {
+      "src": "/",
+      "dest": "/index"
+    },
+    {
+      "src": "/api/_nuxt_icon/(?<collection>[^/]+)",
+      "dest": "/api/_nuxt_icon/[collection]"
+    },
+    {
+      "src": "/__nuxt_island/(?:.*)",
+      "dest": "/__nuxt_island/[...]"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/__fallback"
+    }
+  ]
+}

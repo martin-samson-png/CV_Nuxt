@@ -1,0 +1,1 @@
+import{z as o,_ as t,c as s,o as _}from"#entry";const c=o("/image/photo-CV.jpg"),e={},n={src:c,alt:"Martin Samson"};function a(r,i){return _(),s("img",n)}const p=Object.assign(t(e,[["render",a]]),{__name:"UiPhoto"});export{p as _};
