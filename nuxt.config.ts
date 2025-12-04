@@ -1,4 +1,8 @@
+import { preset } from "process";
+
 export default defineNuxtConfig({
+  ssr: true,
+  nitro: { preset: "vercel" },
   runtimeConfig: {
     resendApiKey: process.env.RESEND_API_KEY,
     resendFrom: process.env.RESEND_FROM,
