@@ -1,0 +1,49 @@
+@import url("./font.css");
+
+html,
+body {
+  margin: 0;
+  background-color: var(--bg);
+  user-select: none;
+  color: var(--text);
+  font-size: 20px;
+  font-family: Nunito;
+}
+
+h1 {
+  font-family: Poppins;
+}
+
+.btn-primary {
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--btn-primary), var(--btn-second));
+  height: 2.5rem;
+  width: 20vh;
+  border: 2px solid var(--btn-second);
+  border-radius: 16px;
+  color: var(--text-second);
+  font-size: 20px;
+  box-shadow: 2rem var(--btn-primary);
+  font-family: Nunito;
+  font-weight: 700;
+}
+
+.btn-disabled {
+  background: linear-gradient(
+    180deg,
+    var(--btn-primary-disabled),
+    var(--btn-primary-disabled-foreground)
+  );
+  height: 2.5rem;
+  width: 20vh;
+  border: 2px solid var(--btn-primary-disabled-border);
+  border-radius: 16px;
+  color: var(--text-second);
+  font-size: 20px;
+  font-family: Nunito;
+  font-weight: 700;
+}
+
+.nav-link {
+  text-decoration: none;
+}

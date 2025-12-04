@@ -1,0 +1,14 @@
+:root {
+  --bg: #121212;
+  --second-color: #2e2e2e;
+  --third-color: #4a4a4a;
+  --text: #b3b3b3;
+  --text-second: #071013;
+  --btn-primary: #9b59b6;
+  --btn-second: #8e44ad;
+  --btn-third: #6a0dad;
+  --btn-four: #240046;
+  --btn-primary-disabled: #e6dbf2;
+  --btn-primary-disabled-border: #d3c2ea;
+  --btn-primary-disabled-foreground: #a995c4;
+}

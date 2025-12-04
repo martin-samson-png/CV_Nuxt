@@ -1,0 +1,3 @@
+<template>
+  <SectionsServiceSection />
+</template>
