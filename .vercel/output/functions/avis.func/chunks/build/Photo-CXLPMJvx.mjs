@@ -1,6 +1,6 @@
 import { mergeProps, useSSRContext } from 'vue';
 import { ssrRenderAttrs } from 'vue/server-renderer';
-import { j as publicAssetsURL } from '../_/nitro.mjs';
+import { e as publicAssetsURL } from '../_/nitro.mjs';
 import { _ as _export_sfc } from './server.mjs';
 
 const _imports_0 = publicAssetsURL("/image/photo-CV.jpg");

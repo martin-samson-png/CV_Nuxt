@@ -45,7 +45,7 @@
       "handle": "filesystem"
     },
     {
-      "src": "/__nuxt_error",
+      "src": "(?<url>/__nuxt_error)",
       "dest": "/__fallback"
     },
     {
@@ -111,10 +111,6 @@
     {
       "src": "/avis",
       "dest": "/avis"
-    },
-    {
-      "src": "/api/form",
-      "dest": "/api/form"
     },
     {
       "src": "/__nuxt_error",

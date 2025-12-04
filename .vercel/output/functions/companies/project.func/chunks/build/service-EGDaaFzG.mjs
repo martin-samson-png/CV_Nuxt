@@ -2,7 +2,6 @@ import { ref, mergeProps, computed, watch, useSSRContext } from 'vue';
 import { ssrRenderComponent, ssrRenderAttrs, ssrRenderAttr, ssrInterpolate, ssrRenderList, ssrIncludeBooleanAttr, ssrLooseEqual, ssrLooseContain, ssrRenderClass } from 'vue/server-renderer';
 import { _ as _export_sfc } from './server.mjs';
 import '../_/nitro.mjs';
-import 'resend';
 import 'node:http';
 import 'node:https';
 import 'node:events';

@@ -18636,7 +18636,7 @@ var aliases = {
 var lastModified = 1758086641;
 var width = 24;
 var height = 24;
-const icons$1 = {
+const icons_default = {
 	prefix: prefix,
 	icons: icons,
 	aliases: aliases,
@@ -18645,5 +18645,5 @@ const icons$1 = {
 	height: height
 };
 
-export { aliases, icons$1 as default, height, icons, lastModified, prefix, width };
+export { aliases, icons_default as default, height, icons, lastModified, prefix, width };
 //# sourceMappingURL=icons4.mjs.map

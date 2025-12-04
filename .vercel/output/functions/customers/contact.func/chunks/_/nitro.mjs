@@ -1,4 +1,3 @@
-import { Resend } from 'resend';
 import http from 'node:http';
 import https from 'node:https';
 import { EventEmitter } from 'node:events';
@@ -7,7 +6,7 @@ import { getIcons } from '@iconify/utils';
 import { createHash } from 'node:crypto';
 import { consola } from 'consola';
 import { promises, existsSync } from 'node:fs';
-import { resolve as resolve$1, dirname, join } from 'node:path';
+import { resolve, dirname, join } from 'node:path';
 
 const suspectProtoRx = /"(?:_|\\u0{2}5[Ff]){2}(?:p|\\u0{2}70)(?:r|\\u0{2}72)(?:o|\\u0{2}6[Ff])(?:t|\\u0{2}74)(?:o|\\u0{2}6[Ff])(?:_|\\u0{2}5[Ff]){2}"\s*:/;
 const suspectConstructorRx = /"(?:c|\\u0063)(?:o|\\u006[Ff])(?:n|\\u006[Ee])(?:s|\\u0073)(?:t|\\u0074)(?:r|\\u0072)(?:u|\\u0075)(?:c|\\u0063)(?:t|\\u0074)(?:o|\\u006[Ff])(?:r|\\u0072)"\s*:/;
@@ -810,7 +809,6 @@ function getRequestHeader(event, name) {
   const value = headers[name.toLowerCase()];
   return value;
 }
-const getHeader = getRequestHeader;
 function getRequestHost(event, opts = {}) {
   if (opts.xForwardedHost) {
     const _header = event.node.req.headers["x-forwarded-host"];
@@ -836,23 +834,8 @@ function getRequestURL(event, opts = {}) {
   );
   return new URL(path, `${protocol}://${host}`);
 }
-function getRequestIP(event, opts = {}) {
-  if (event.context.clientAddress) {
-    return event.context.clientAddress;
-  }
-  if (opts.xForwardedFor) {
-    const xForwardedFor = getRequestHeader(event, "x-forwarded-for")?.split(",").shift()?.trim();
-    if (xForwardedFor) {
-      return xForwardedFor;
-    }
-  }
-  if (event.node.req.socket.remoteAddress) {
-    return event.node.req.socket.remoteAddress;
-  }
-}
 
 const RawBodySymbol = Symbol.for("h3RawBody");
-const ParsedBodySymbol = Symbol.for("h3ParsedBody");
 const PayloadMethods$1 = ["PATCH", "POST", "PUT", "DELETE"];
 function readRawBody(event, encoding = "utf8") {
   assertMethod(event, PayloadMethods$1);
@@ -920,26 +903,6 @@ function readRawBody(event, encoding = "utf8") {
   const result = encoding ? promise.then((buff) => buff.toString(encoding)) : promise;
   return result;
 }
-async function readBody(event, options = {}) {
-  const request = event.node.req;
-  if (hasProp(request, ParsedBodySymbol)) {
-    return request[ParsedBodySymbol];
-  }
-  const contentType = request.headers["content-type"] || "";
-  const body = await readRawBody(event);
-  let parsed;
-  if (contentType === "application/json") {
-    parsed = _parseJSON(body, options.strict ?? true);
-  } else if (contentType.startsWith("application/x-www-form-urlencoded")) {
-    parsed = _parseURLEncodedBody(body);
-  } else if (contentType.startsWith("text/")) {
-    parsed = body;
-  } else {
-    parsed = _parseJSON(body, options.strict ?? false);
-  }
-  request[ParsedBodySymbol] = parsed;
-  return parsed;
-}
 function getRequestWebStream(event) {
   if (!PayloadMethods$1.includes(event.method)) {
     return;
@@ -973,35 +936,6 @@ function getRequestWebStream(event) {
       });
     }
   });
-}
-function _parseJSON(body = "", strict) {
-  if (!body) {
-    return void 0;
-  }
-  try {
-    return destr(body, { strict });
-  } catch {
-    throw createError$1({
-      statusCode: 400,
-      statusMessage: "Bad Request",
-      message: "Invalid JSON body"
-    });
-  }
-}
-function _parseURLEncodedBody(body) {
-  const form = new URLSearchParams(body);
-  const parsedForm = /* @__PURE__ */ Object.create(null);
-  for (const [key, value] of form.entries()) {
-    if (hasProp(parsedForm, key)) {
-      if (!Array.isArray(parsedForm[key])) {
-        parsedForm[key] = [parsedForm[key]];
-      }
-      parsedForm[key].push(value);
-    } else {
-      parsedForm[key] = value;
-    }
-  }
-  return parsedForm;
 }
 
 function handleCacheHeaders(event, opts) {
@@ -2275,6 +2209,9 @@ function isJSONSerializable(value) {
   if (value.buffer) {
     return false;
   }
+  if (value instanceof FormData || value instanceof URLSearchParams) {
+    return false;
+  }
   return value.constructor && value.constructor.name === "Object" || typeof value.toJSON === "function";
 }
 const textTypes = /* @__PURE__ */ new Set([
@@ -2291,6 +2228,9 @@ function detectResponseType(_contentType = "") {
   const contentType = _contentType.split(";").shift() || "";
   if (JSON_RE.test(contentType)) {
     return "json";
+  }
+  if (contentType === "text/event-stream") {
+    return "stream";
   }
   if (textTypes.has(contentType) || contentType.startsWith("text/")) {
     return "text";
@@ -2413,6 +2353,12 @@ function createFetch(globalOptions = {}) {
     }
     if (context.options.onRequest) {
       await callHooks(context, context.options.onRequest);
+      if (!(context.options.headers instanceof Headers)) {
+        context.options.headers = new Headers(
+          context.options.headers || {}
+          /* compat */
+        );
+      }
     }
     if (typeof context.request === "string") {
       if (context.options.baseURL) {
@@ -2431,9 +2377,13 @@ function createFetch(globalOptions = {}) {
     }
     if (context.options.body && isPayloadMethod(context.options.method)) {
       if (isJSONSerializable(context.options.body)) {
-        context.options.body = typeof context.options.body === "string" ? context.options.body : JSON.stringify(context.options.body);
-        context.options.headers = new Headers(context.options.headers || {});
-        if (!context.options.headers.has("content-type")) {
+        const contentType = context.options.headers.get("content-type");
+        if (typeof context.options.body !== "string") {
+          context.options.body = contentType === "application/x-www-form-urlencoded" ? new URLSearchParams(
+            context.options.body
+          ).toString() : JSON.stringify(context.options.body);
+        }
+        if (!contentType) {
           context.options.headers.set("content-type", "application/json");
         }
         if (!context.options.headers.has("accept")) {
@@ -3236,7 +3186,7 @@ async function readdirRecursive(dir, ignore, maxDepth) {
   const files = [];
   await Promise.all(
     entries.map(async (entry) => {
-      const entryPath = resolve$1(dir, entry.name);
+      const entryPath = resolve(dir, entry.name);
       if (entry.isDirectory()) {
         if (maxDepth === void 0 || maxDepth > 0) {
           const dirFiles = await readdirRecursive(
@@ -3259,7 +3209,7 @@ async function rmRecursive(dir) {
   const entries = await readdir(dir);
   await Promise.all(
     entries.map((entry) => {
-      const entryPath = resolve$1(dir, entry.name);
+      const entryPath = resolve(dir, entry.name);
       if (entry.isDirectory()) {
         return rmRecursive(entryPath).then(() => promises.rmdir(entryPath));
       } else {
@@ -3275,7 +3225,7 @@ const unstorage_47drivers_47fs_45lite = defineDriver((opts = {}) => {
   if (!opts.base) {
     throw createRequiredError(DRIVER_NAME, "base");
   }
-  opts.base = resolve$1(opts.base);
+  opts.base = resolve(opts.base);
   const r = (key) => {
     if (PATH_TRAVERSE_RE.test(key)) {
       throw createError(
@@ -4251,7 +4201,7 @@ function _expandFromEnv(value) {
 const _inlineRuntimeConfig = {
   "app": {
     "baseURL": "/",
-    "buildId": "f4367b26-6379-47f0-9ba7-d014dcfdc60d",
+    "buildId": "316d41fb-bc51-42ed-8b0c-83d6d8c5b2db",
     "buildAssetsDir": "/_nuxt/",
     "cdnURL": ""
   },
@@ -4280,9 +4230,6 @@ const _inlineRuntimeConfig = {
     }
   },
   "public": {},
-  "resendApiKey": "re_Cf8dJM2Y_HK6f7G3E1jM74rvadxVr8DKD",
-  "resendFrom": "Martin Samson <onboarding@resend.dev>",
-  "ownerEmail": "martinsams64@gmail.com",
   "icon": {
     "serverKnownCssClasses": []
   }
@@ -4688,6 +4635,8 @@ const plugins = [
   
 ];
 
+const _SxA8c9 = defineEventHandler(() => {});
+
 const _DRIVE_LETTER_START_RE = /^[A-Za-z]:\//;
 function normalizeWindowsPath(input = "") {
   if (!input) {
@@ -4695,110 +4644,6 @@ function normalizeWindowsPath(input = "") {
   }
   return input.replace(/\\/g, "/").replace(_DRIVE_LETTER_START_RE, (r) => r.toUpperCase());
 }
-const _IS_ABSOLUTE_RE = /^[/\\](?![/\\])|^[/\\]{2}(?!\.)|^[A-Za-z]:[/\\]/;
-const _ROOT_FOLDER_RE = /^\/([A-Za-z]:)?$/;
-function cwd() {
-  if (typeof process !== "undefined" && typeof process.cwd === "function") {
-    return process.cwd().replace(/\\/g, "/");
-  }
-  return "/";
-}
-const resolve = function(...arguments_) {
-  arguments_ = arguments_.map((argument) => normalizeWindowsPath(argument));
-  let resolvedPath = "";
-  let resolvedAbsolute = false;
-  for (let index = arguments_.length - 1; index >= -1 && !resolvedAbsolute; index--) {
-    const path = index >= 0 ? arguments_[index] : cwd();
-    if (!path || path.length === 0) {
-      continue;
-    }
-    resolvedPath = `${path}/${resolvedPath}`;
-    resolvedAbsolute = isAbsolute(path);
-  }
-  resolvedPath = normalizeString(resolvedPath, !resolvedAbsolute);
-  if (resolvedAbsolute && !isAbsolute(resolvedPath)) {
-    return `/${resolvedPath}`;
-  }
-  return resolvedPath.length > 0 ? resolvedPath : ".";
-};
-function normalizeString(path, allowAboveRoot) {
-  let res = "";
-  let lastSegmentLength = 0;
-  let lastSlash = -1;
-  let dots = 0;
-  let char = null;
-  for (let index = 0; index <= path.length; ++index) {
-    if (index < path.length) {
-      char = path[index];
-    } else if (char === "/") {
-      break;
-    } else {
-      char = "/";
-    }
-    if (char === "/") {
-      if (lastSlash === index - 1 || dots === 1) ; else if (dots === 2) {
-        if (res.length < 2 || lastSegmentLength !== 2 || res[res.length - 1] !== "." || res[res.length - 2] !== ".") {
-          if (res.length > 2) {
-            const lastSlashIndex = res.lastIndexOf("/");
-            if (lastSlashIndex === -1) {
-              res = "";
-              lastSegmentLength = 0;
-            } else {
-              res = res.slice(0, lastSlashIndex);
-              lastSegmentLength = res.length - 1 - res.lastIndexOf("/");
-            }
-            lastSlash = index;
-            dots = 0;
-            continue;
-          } else if (res.length > 0) {
-            res = "";
-            lastSegmentLength = 0;
-            lastSlash = index;
-            dots = 0;
-            continue;
-          }
-        }
-        if (allowAboveRoot) {
-          res += res.length > 0 ? "/.." : "..";
-          lastSegmentLength = 2;
-        }
-      } else {
-        if (res.length > 0) {
-          res += `/${path.slice(lastSlash + 1, index)}`;
-        } else {
-          res = path.slice(lastSlash + 1, index);
-        }
-        lastSegmentLength = index - lastSlash - 1;
-      }
-      lastSlash = index;
-      dots = 0;
-    } else if (char === "." && dots !== -1) {
-      ++dots;
-    } else {
-      dots = -1;
-    }
-  }
-  return res;
-}
-const isAbsolute = function(p) {
-  return _IS_ABSOLUTE_RE.test(p);
-};
-const relative = function(from, to) {
-  const _from = resolve(from).replace(_ROOT_FOLDER_RE, "$1").split("/");
-  const _to = resolve(to).replace(_ROOT_FOLDER_RE, "$1").split("/");
-  if (_to[0][1] === ":" && _from[0][1] === ":" && _from[0] !== _to[0]) {
-    return _to.join("/");
-  }
-  const _fromCopy = [..._from];
-  for (const segment of _fromCopy) {
-    if (_to[0] !== segment) {
-      break;
-    }
-    _from.shift();
-    _to.shift();
-  }
-  return [..._from.map(() => ".."), ..._to].join("/");
-};
 const basename = function(p, extension) {
   const segments = normalizeWindowsPath(p).split("/");
   let lastSegment = "";
@@ -4866,40 +4711,6 @@ function publicAssetsURL(...path) {
   return path.length ? joinRelativeURL(publicBase, ...path) : publicBase;
 }
 
-const sendEmail = async ({
-  to,
-  subject,
-  html,
-  text,
-  replyTo,
-  tags
-}) => {
-  const config = useRuntimeConfig();
-  const resend = new Resend(config.resendApiKey);
-  try {
-    const { data, error } = await resend.emails.send({
-      from: config.resendFrom,
-      to,
-      subject,
-      html,
-      text,
-      replyTo,
-      tags,
-      headers: { "Idempotency-Key": crypto.randomUUID() }
-    });
-    if (error) {
-      console.error(error);
-      throw createError$1({
-        statusCode: 502,
-        message: "Envoi email impossible"
-      });
-    }
-    return data;
-  } catch (error) {
-    throw createError$1({ statusCode: 500, message: "Erreur interne email" });
-  }
-};
-
 const collections = {
   'fa6-brands': () => import('./icons.mjs').then(m => m.default),
   'fa6-solid': () => import('./icons2.mjs').then(m => m.default),
@@ -4958,17 +4769,13 @@ const _HS6kW5 = defineCachedEventHandler(async (event) => {
   // 1 week
 });
 
-const _SxA8c9 = defineEventHandler(() => {});
-
-const _lazy_pPEsOR = () => import('../routes/api/form.post.mjs');
-const _lazy_WAeFFr = () => import('../routes/renderer.mjs').then(function (n) { return n.r; });
+const _lazy_ohnhoL = () => import('../routes/renderer.mjs').then(function (n) { return n.r; });
 
 const handlers = [
-  { route: '/api/form', handler: _lazy_pPEsOR, lazy: true, middleware: false, method: "post" },
-  { route: '/__nuxt_error', handler: _lazy_WAeFFr, lazy: true, middleware: false, method: undefined },
-  { route: '/api/_nuxt_icon/:collection', handler: _HS6kW5, lazy: false, middleware: false, method: undefined },
+  { route: '/__nuxt_error', handler: _lazy_ohnhoL, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_island/**', handler: _SxA8c9, lazy: false, middleware: false, method: undefined },
-  { route: '/**', handler: _lazy_WAeFFr, lazy: true, middleware: false, method: undefined }
+  { route: '/api/_nuxt_icon/:collection', handler: _HS6kW5, lazy: false, middleware: false, method: undefined },
+  { route: '/**', handler: _lazy_ohnhoL, lazy: true, middleware: false, method: undefined }
 ];
 
 function createNitroApp() {
@@ -5112,5 +4919,5 @@ function useNitroApp() {
 }
 runNitroPlugins(nitroApp);
 
-export { $fetch$1 as $, isScriptProtocol as A, getContext as B, sanitizeStatusCode as C, baseURL as D, createHooks as E, executeAsync as F, toRouteMatcher as G, createRouter$1 as H, defu as I, getRequestIP as a, useRuntimeConfig as b, createError$1 as c, defineEventHandler as d, buildAssetsURL as e, getResponseStatusText as f, getHeader as g, getResponseStatus as h, defineRenderHandler as i, publicAssetsURL as j, getQuery as k, destr as l, getRouteRules as m, hasProtocol as n, relative as o, parseQuery as p, joinURL as q, readBody as r, sendEmail as s, toNodeListener as t, useNitroApp as u, klona as v, defuFn as w, withQuery as x, withTrailingSlash as y, withoutTrailingSlash as z };
+export { $fetch$1 as $, toRouteMatcher as A, createRouter$1 as B, defu as C, useRuntimeConfig as a, buildAssetsURL as b, getResponseStatus as c, defineRenderHandler as d, publicAssetsURL as e, getQuery as f, getResponseStatusText as g, createError$1 as h, destr as i, getRouteRules as j, klona as k, defuFn as l, hasProtocol as m, joinURL as n, withTrailingSlash as o, parseQuery as p, withoutTrailingSlash as q, isScriptProtocol as r, getContext as s, toNodeListener as t, useNitroApp as u, sanitizeStatusCode as v, withQuery as w, baseURL as x, createHooks as y, executeAsync as z };
 //# sourceMappingURL=nitro.mjs.map

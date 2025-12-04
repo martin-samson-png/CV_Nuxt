@@ -1,7 +1,6 @@
 import { useSSRContext } from 'vue';
 import { _ as _export_sfc } from './server.mjs';
 import '../_/nitro.mjs';
-import 'resend';
 import 'node:http';
 import 'node:https';
 import 'node:events';

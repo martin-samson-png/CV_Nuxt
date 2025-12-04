@@ -1,5 +1,4 @@
 import process from 'node:process';globalThis._importMeta_={url:import.meta.url,env:process.env};import { p as parseQuery, t as toNodeListener, u as useNitroApp } from './chunks/_/nitro.mjs';
-import 'resend';
 import 'node:http';
 import 'node:https';
 import 'node:events';

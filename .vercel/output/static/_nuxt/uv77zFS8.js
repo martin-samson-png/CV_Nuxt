@@ -1,0 +1,1 @@
+import{_ as o,c as t,a as r,o as s}from"./DCTMm3B-.js";const a={};function n(c,e){return s(),t("div",null,[...e[0]||(e[0]=[r("h1",null,"Choose your path",-1)])])}const _=o(a,[["render",n]]);export{_ as default};

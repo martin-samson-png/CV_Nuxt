@@ -3,7 +3,6 @@ import { mergeProps, withCtx, createVNode, createBlock, createCommentVNode, crea
 import { ssrRenderAttrs, ssrRenderList, ssrRenderClass, ssrRenderComponent, ssrInterpolate } from 'vue/server-renderer';
 import { _ as __nuxt_component_0$1 } from './Photo-CXLPMJvx.mjs';
 import '../_/nitro.mjs';
-import 'resend';
 import 'node:http';
 import 'node:https';
 import 'node:events';
