@@ -1,4 +1,4 @@
-import { sendEmail } from "../utils/email";
+/* import { sendEmail } from "../utils/email";
 
 const RECENT_BY_IP = new Map<string, number>();
 
@@ -111,3 +111,4 @@ const escapeHtml = (s: string) => {
       }[c] as string)
   );
 };
+ */

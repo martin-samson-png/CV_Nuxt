@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+/* import { Resend } from "resend";
 
 type SendArgs = {
   to: string | string[];
@@ -44,3 +44,4 @@ export const sendEmail = async ({
     throw createError({ statusCode: 500, message: "Erreur interne email" });
   }
 };
+ */
