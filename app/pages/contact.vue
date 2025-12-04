@@ -1,1 +1,1 @@
-<template><SectionsContactSection /></template>
+<template>En travaux</template>
